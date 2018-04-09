@@ -45,6 +45,7 @@ const sendEmailVerification = ({ email, password }) => new Promise((resolve, rej
         firebase.auth().currentUser.sendEmailVerification()
           .then(() => {
             firebase.auth().signOut();
+            db.ref(`/users/${firebase.auth().currentUser.uid}/sendEmailVerificationAt`).set(moment().toString());
             return resolve(`${firebase.auth().currentUser.email}로 확인 메일이 전송되었습니다.`);
           });
       })

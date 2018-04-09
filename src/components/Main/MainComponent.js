@@ -86,6 +86,7 @@ class Main extends React.Component {
       startAt: '0',
       cookie: '',
       sessionid: '',
+      emoticonCount: 0,
       iframeHeight: window.innerHeight - 470
     }
     this.onChangeTextField = this.onChangeTextField.bind(this);
@@ -115,6 +116,7 @@ class Main extends React.Component {
 
   componentWillUnmount() {
     db.ref('favorites').off();
+    db.ref('users').off();
     window.removeEventListener("resize", this.updateDimensions);
   }
 
@@ -127,14 +129,20 @@ class Main extends React.Component {
   initUser() {
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if (snapshot.val()) {
-        const { roomid, sessionid, cookie } = snapshot.val();
+        const { roomid, sessionid, cookie, emoticonCount } = snapshot.val();
         this.setState({
           roomid,
           sessionid,
-          cookie
+          cookie,
+          emoticonCount
         });
       }
     });
+    db.ref(`/users/${firebase.auth().currentUser.uid}/emoticonCount`).on('value', (snapshot) => {
+      this.setState({
+        emoticonCount: snapshot.val()
+      });
+    })
   }
 
   initEmoticons() {
@@ -253,6 +261,9 @@ class Main extends React.Component {
     //   .then((res) => Alert.success(res.json()))
     //   .catch(console.log);
     //{"status":200,"code":"OK","msg":"OK","enter":"fd84a9b1-4e0a-4f39-a547-415624a693c1","roomInfo":{"serverip":"203.133.177.139","port":"9002","channelid":"tvpot.301","version":57398,"roomid":"1732884","freeze":"0","mode":"1","reportcount":"0","expand":"0"},"additionalInfo":{"prohibit_version":"1519002433711"}}
+    //TIARA=t6KKoBd3WK-O3V4BtIjIJXuAtD8g-L_OTvpS8Jr3mXdg3egHnJg4GMOgEZeDtqNsNCyHwAzLQaSjoifk3wp8LA00; webid=73de22799b7d4f26b0ff12c44a3fd95f; _kadu=5ihgD3HLQP8wpyj0_1522013107882; LWCS=iK2_HD7hbdN8SvcyXR8sQQ.Hb1BHAlDL74JkSKIsCyIJONW3o2sbos9sss8rAqfi9xUKpz9zAz4t-GuhAA6o7TE.1523250752617.300000.qaKbYCwMDlzb4WVWZ1Sji3ElkX1LfMj-0N1Ow_kttCQ; _kawlt=vlFlI2o3Wj6oeL6aTLNwKO1qVOOs8q1UbYfuKRTXCUYqD_Dti_cAPD6wOxMJnfA2h-FR4VkI70b--qkdSoFLyS0ugRV9DGWFSXDR0bEE23D9xFEgwk47tb1Kcmf5-P7I; _karmt=oD9tGgUtgOs-QLvOJsd7q5xj_Zjvts_-LGGmLcr-qxZoMlUMjC0xU38SmGkWBW7e; _kawltea=1523316081; _karmtea=1523326881; _klv=2973842:ee2757534063c7f7
+    //2433010
+    //1760871
     const sessionid = this.state.sessionid;
     const cookie = encodeURI(this.state.cookie);
     const roomid = this.state.roomid;
@@ -262,23 +273,33 @@ class Main extends React.Component {
     const item_sub_type = this.state.item_sub_type;
 
     let params = '';
-    if (resourceid && itemid) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}&item_sub_type=${item_sub_type}`;
+    if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}&item_sub_type=${item_sub_type}`;
     else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
-    fetch(`${endpoint}/msg?${params}`, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Length': Buffer.byteLength(data, 'utf8'),
-        'Content-type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
-      },
-    })
-      .then(res => res.json())
-      .then(res => Alert.success(JSON.stringify(res)))
-      .catch(err => Alert.error(err.msg))
-    this.setState({
-      message: ''
+    db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
+      if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().admin && isEmoticon) {
+        return Alert.error('사용가능한 이모티콘 횟수가 0입니다.')
+      }
+      fetch(`${endpoint}/msg?${params}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Length': Buffer.byteLength(data, 'utf8'),
+          'Content-type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
+        },
+      })
+        .then(res => res.json())
+        .then(res => {
+          if (isEmoticon) {
+            db.ref(`/users/${firebase.auth().currentUser.uid}/emoticonCount`).transaction(currentCount => currentCount > 0 ? currentCount - 1 : 0);
+          }
+          Alert.success(JSON.stringify(res))
+        })
+        .catch(err => Alert.error(err.msg))
+      this.setState({
+        message: ''
+      });
     });
   }
 
@@ -290,6 +311,7 @@ class Main extends React.Component {
             <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
           </div>
           <div style={styles.controller}>
+            <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>
             <div style={styles.playerId}>
               <TextField
                 floatingLabelText='roomid'
