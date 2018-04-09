@@ -1,15 +1,15 @@
-/* global Kakao */
-
 import React from 'react';
-import { TextField, FlatButton } from 'material-ui';
+import { TextField, FlatButton, SelectField, MenuItem } from 'material-ui';
 import Alert from 'react-s-alert';
-import https from 'https';
+import firebase from 'firebase';
 import { db } from '../../utils/firebase/firebase';
+
+const endpoint = 'https://e-kakao-api.herokuapp.com';
 
 const styles = {
   root: {
     display: 'flex',
-    height: 1100,
+    height: '100%',
     flexDirection: 'column'
   },
   container: {
@@ -45,36 +45,33 @@ const styles = {
 
   },
   selectedEmoticonSet: {
-    height: 400,
+    height: 300,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflowY: 'scroll'
   },
   emoticonList: {
-    height: 400,
+    height: 300,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
     flexWrap: 'wrap'
   },
   favorites: {
-    height: 400,
+    height: 300,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
     flexWrap: 'wrap'
   }
 };
-// 1724651 에버모어
-// 1724591 기아
+
 class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      roomid: '1759685',
-      tempChannelId: '2665925',
-      tempLiveLinkId: '2864790',
+      roomid: '',
       message: '',
       emoticons: {},
       numEmoticons: 0,
@@ -82,42 +79,62 @@ class Main extends React.Component {
       favorites: {},
       selectedEmoticonSet: {},
       itemid: 0,
-      item_sub_type: 0,
+      item_sub_type: 3,
       resourceid: 0,
       page: 0,
-      limit: 1000,
+      limit: 500,
       startAt: '0',
-      cookie: 'TIARA=t6KKoBd3WK-O3V4BtIjIJXuAtD8g-L_OTvpS8Jr3mXdg3egHnJg4GMOgEZeDtqNsNCyHwAzLQaSjoifk3wp8LA00; webid=73de22799b7d4f26b0ff12c44a3fd95f; _kadu=5ihgD3HLQP8wpyj0_1522013107882; LWCS=iK2_HD7hbdN8SvcyXR8sQQ.Hb1BHAlDL74JkSKIsCyIJONW3o2sbos9sss8rAqfi9xUKpz9zAz4t-GuhAA6o7TE.1523250752617.300000.qaKbYCwMDlzb4WVWZ1Sji3ElkX1LfMj-0N1Ow_kttCQ; _kawlt=vlFlI2o3Wj6oeL6aTLNwKO1qVOOs8q1UbYfuKRTXCUYqD_Dti_cAPD6wOxMJnfA2h-FR4VkI70b--qkdSoFLyS0ugRV9DGWFSXDR0bEE23D9xFEgwk47tb1Kcmf5-P7I; _karmt=oD9tGgUtgOs-QLvOJsd7q5xj_Zjvts_-LGGmLcr-qxZoMlUMjC0xU38SmGkWBW7e; _kawltea=1523316081; _karmtea=1523326881; _klv=2973842:ee2757534063c7f7',
-      sessionid: '2433010'
+      cookie: '',
+      sessionid: '',
+      iframeHeight: window.innerHeight - 470
     }
     this.onChangeTextField = this.onChangeTextField.bind(this);
     this.onAddFavorite = this.onAddFavorite.bind(this);
     this.onDeleteFavorite = this.onDeleteFavorite.bind(this);
     this.initEmoticons = this.initEmoticons.bind(this);
+    this.initUser = this.initUser.bind(this);
+    this.initFavorites = this.initFavorites.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.onClickNext = this.onClickNext.bind(this);
     this.onClickPrev = this.onClickPrev.bind(this);
+    this.isUpdated = false;
+    this.onSaveProfile = this.onSaveProfile.bind(this);
+    this.onLoadProfile = this.onLoadProfile.bind(this);
+    this.updateDimensions = this.updateDimensions.bind(this);
   }
 
   componentWillMount() {
-    // Kakao.init('e8f61d94ae9eaa1ce090252b884c44e4');
-    // // 카카오 로그인 버튼을 생성합니다.
-    // Kakao.Auth.createLoginButton({
-    //   container: '#kakao-login-btn',
-    //   success: function (authObj) {
-    //     console.log(JSON.stringify(authObj));
-    //   },
-    //   fail: function (err) {
-    //     console.log(JSON.stringify(err));
-    //   }
-    // });
-    // this.initEmoticons();
+    this.initUser();
     this.initEmoticons();
     this.initFavorites();
   }
 
+  componentDidMount() {
+    window.addEventListener("resize", this.updateDimensions);
+  }
+
   componentWillUnmount() {
     db.ref('favorites').off();
+    window.removeEventListener("resize", this.updateDimensions);
+  }
+
+  updateDimensions() {
+    this.setState({
+      iframeHeight: window.innerHeight - 470
+    });
+  }
+
+  initUser() {
+    db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
+      if (snapshot.val()) {
+        const { roomid, sessionid, cookie } = snapshot.val();
+        this.setState({
+          roomid,
+          sessionid,
+          cookie
+        });
+      }
+    });
   }
 
   initEmoticons() {
@@ -130,11 +147,11 @@ class Main extends React.Component {
   }
 
   initFavorites() {
-    db.ref('/favorites').on('value', (snapshot) => {
+    db.ref(`/favorites/${firebase.auth().currentUser.uid}`).on('value', (snapshot) => {
       this.setState({
         favorites: snapshot.val()
       });
-    })
+    });
   }
 
   onChangeTextField(e) {
@@ -143,9 +160,15 @@ class Main extends React.Component {
     });
   }
 
+  onChangeSelectField(name, v) {
+    this.setState({
+      [name]: v
+    });
+  }
+
   onAddFavorite() {
     if (this.state.itemid > 0 && this.state.selectedEmoticonSet.emoticons) {
-      db.ref(`/favorites/${this.state.itemid}`).set({
+      db.ref(`/favorites/${firebase.auth().currentUser.uid}/${this.state.itemid}`).set({
         ...this.state.selectedEmoticonSet
       });
     }
@@ -153,8 +176,26 @@ class Main extends React.Component {
 
   onDeleteFavorite() {
     if (this.state.itemid > 0 && this.state.selectedEmoticonSet.emoticons) {
-      db.ref(`/favorites/${this.state.itemid}`).remove();
+      db.ref(`/favorites//${firebase.auth().currentUser.uid}/${this.state.itemid}`).remove();
     }
+  }
+
+  onSaveProfile() {
+    db.ref(`/users/${firebase.auth().currentUser.uid}`).set({
+      roomid: this.state.roomid,
+      sessionid: this.state.sessionid,
+      cookie: this.state.cookie
+    })
+      .then(() => {
+        Alert.success('success');
+      })
+      .catch(() => {
+        Alert.error('failed');
+      })
+  }
+
+  onLoadProfile() {
+    this.initUser();
   }
 
   onClickPrev() {
@@ -191,7 +232,6 @@ class Main extends React.Component {
       return;
     }
     const data = `sessionid=${this.state.sessionid}&roomid=${this.state.roomid}&msg=%7B%22msg%22%3A%22${this.state.message}%22%2C%22emoticon%22%3A%7B%22item_id%22%3A%22${this.state.itemid}%22%2C%22resource_id%22%3A%22${this.state.resourceid}%22%2C%22item_sub_type%22%3A4%2C%22item_version%22%3A1%7D%7D&type=EMOTICON`;
-    let body = '';
     // fetch('https://play.kakao.com/chat/service/api/msg', {
     //   method: 'POST',
     //   credentials: 'include',
@@ -224,7 +264,7 @@ class Main extends React.Component {
     let params = '';
     if (resourceid && itemid) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}&item_sub_type=${item_sub_type}`;
     else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
-    fetch(`http://localhost:3000/msg?${params}`, {
+    fetch(`${endpoint}/msg?${params}`, {
       method: 'GET',
       mode: 'cors',
       headers: {
@@ -247,7 +287,7 @@ class Main extends React.Component {
       <div style={styles.root}>
         <div style={styles.container}>
           <div style={styles.player}>
-            <iframe class='live_chat' src={`https://tv.kakao.com/`} width='100%' height='100%' />
+            <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
           </div>
           <div style={styles.controller}>
             <div style={styles.playerId}>
@@ -259,34 +299,39 @@ class Main extends React.Component {
                 style={{ flex: 1 }}
               />
               <TextField
-                floatingLabelText='item_sub_type'
-                name='item_sub_type'
-                value={this.state.item_sub_type}
-                onChange={this.onChangeTextField}
-                style={{ flex: 1 }}
-              />
-              <TextField
                 floatingLabelText='sessionid'
                 name='sessionid'
                 value={this.state.sessionid}
                 onChange={this.onChangeTextField}
-                style={{ flex: 1 }}
+                style={{ flex: 1, marginLeft: 10 }}
               />
               <TextField
                 floatingLabelText='cookie'
                 name='cookie'
                 value={this.state.cookie}
                 onChange={this.onChangeTextField}
-                style={{ flex: 5 }}
+                style={{ flex: 5, marginLeft: 10 }}
               />
+              <FlatButton label='저장' style={{ marginTop: 30 }} onClick={this.onSaveProfile} />
+              <FlatButton label='불러오기' style={{ marginTop: 30 }} onClick={this.onLoadProfile} />
             </div>
             <div style={styles.message}>
+              <SelectField
+                floatingLabelText='item_sub_type'
+                name='item_sub_type'
+                value={this.state.item_sub_type}
+                onChange={(e, i, v) => this.onChangeSelectField('item_sub_type', v)}
+                style={{ width: 100 }}
+              >
+                <MenuItem primaryText='일반' value={3} />
+                <MenuItem primaryText='움짤' value={4} />
+              </SelectField>
               <TextField
                 floatingLabelText='메시지'
                 name='message'
                 value={this.state.message}
                 onChange={this.onChangeTextField}
-                style={{ flex: 1 }}
+                style={{ flex: 5 }}
                 fullWidth
               />
               <FlatButton
@@ -309,6 +354,8 @@ class Main extends React.Component {
             <div style={styles.selectedEmoticonSet}>
               {this.state.selectedEmoticonSet.emoticons && this.state.selectedEmoticonSet.emoticons.map((url, i) => {
                 return (<img
+                  alt=''
+                  key={i}
                   style={{
                     height: 100,
                     width: 100,
@@ -334,6 +381,8 @@ class Main extends React.Component {
                 if (i >= this.state.limit * this.state.page && i < (this.state.page + 1) * this.state.limit) {
                   return (
                     <img
+                      alt=''
+                      key={i}
                       style={{
                         height: 100,
                         width: 100,
@@ -350,6 +399,7 @@ class Main extends React.Component {
                     />
                   );
                 }
+                return (null);
               })}
             </div>
             <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -368,9 +418,11 @@ class Main extends React.Component {
           <div style={{ width: 600 }}>
             <div style={{ margin: 10 }}>즐겨찾기</div>
             <div style={styles.favorites}>
-              {this.state.favorites && Object.keys(this.state.favorites).map((key) => {
+              {this.state.favorites && Object.keys(this.state.favorites).map((key, i) => {
                 return (
                   <img
+                    alt=''
+                    key={i}
                     style={{
                       height: 100,
                       width: 100,
