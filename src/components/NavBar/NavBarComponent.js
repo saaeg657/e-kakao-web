@@ -29,7 +29,7 @@ const styles = {
   navBarTitle: {
     float: 'left',
     fontSize: 30,
-    paddingLeft: 30,
+    paddingLeft: 20,
     paddingTop: 15,
     color: '#666'
   },
@@ -84,7 +84,7 @@ class NavBarComponent extends React.Component {
         <div style={styles.navBarContents}>
           <img src={onmumunetIcon} height={70} width={70} style={styles.logo} alt='' />
           <div style={styles.navBarTitle}>
-            <span style={{ fontFamily: 'Nanum Pen Script', fontSize: 40 }}>온무무넷</span>
+            <span style={{ fontFamily: 'Nanum Pen Script', fontSize: 40 }}>Onmumunet</span>
           </div>
           <div style={{ float: 'right' }}>
             {/* <div style={styles.navBarItem}><NavLink to='/info' style={styles.navLink}><span>정보</span></NavLink></div>
