@@ -129,12 +129,13 @@ class Main extends React.Component {
   initUser() {
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if (snapshot.val()) {
-        const { roomid, sessionid, cookie, emoticonCount } = snapshot.val();
+        const { roomid, sessionid, cookie, emoticonCount, admin } = snapshot.val();
         this.setState({
           roomid,
           sessionid,
           cookie,
-          emoticonCount
+          emoticonCount,
+          admin
         });
       }
     });
@@ -311,7 +312,7 @@ class Main extends React.Component {
             <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
           </div>
           <div style={styles.controller}>
-            <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>
+            {this.state.admin ? <div>어드민</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}
             <div style={styles.playerId}>
               <TextField
                 floatingLabelText='roomid'
