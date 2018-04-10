@@ -21,11 +21,12 @@ const styles = {
     marginTop: 200
   }
 }
-
+/* eslint-disable */
 const validateEmail = (email) => {
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
 }
+/* eslint-enable */
 
 class SignUpComponent extends React.Component {
   constructor(props) {
@@ -67,6 +68,7 @@ class SignUpComponent extends React.Component {
           roomid: '',
           sessionid: '',
           cookie: '',
+          emoticonCount: 10,
           sendEmailVerificationAt: moment().toString()
         });
         firebase.auth().currentUser.sendEmailVerification()

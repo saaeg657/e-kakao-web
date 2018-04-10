@@ -190,7 +190,7 @@ class Main extends React.Component {
   }
 
   onSaveProfile() {
-    db.ref(`/users/${firebase.auth().currentUser.uid}`).set({
+    db.ref(`/users/${firebase.auth().currentUser.uid}`).update({
       roomid: this.state.roomid,
       sessionid: this.state.sessionid,
       cookie: this.state.cookie

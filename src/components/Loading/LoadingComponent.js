@@ -11,7 +11,8 @@ class Loading extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      authState: authState.WAITING
+      authState: authState.WAITING,
+      admin: false
     };
     this.initialize = this.initialize.bind(this);
   }
@@ -26,9 +27,9 @@ class Loading extends React.Component {
 
   initialize() {
     checkAuth()
-      .then(() => {
+      .then((user) => {
         if (this.props.isLoginPath || this.props.isSignUpPath) this.props.history.push('/');
-        this.setState({ authState: authState.APPROVED });
+        this.setState({ authState: authState.APPROVED, admin: user.admin });
       })
       .catch(() => {
         this.setState({ authState: authState.FAILED });
@@ -47,6 +48,10 @@ class Loading extends React.Component {
         }
         case authState.APPROVED: {
           const Component = this.props.component;
+          if (this.props.onlyAdmin && !this.state.admin) {
+            this.props.history.push('/');
+            return (null);
+          }
           return (
             <div>
               <NavBar {...props} />

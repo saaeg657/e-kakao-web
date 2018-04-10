@@ -7,6 +7,7 @@ import Main from '../components/Main/MainComponent';
 import Loading from '../components/Loading/LoadingComponent';
 import Login from '../components/Login/LoginComponent';
 import SignUp from '../components/SignUp/SignUpComponent';
+import Admin from '../components/Admin/AdminComponent';
 
 class Routes extends React.Component {
   render() {
@@ -15,9 +16,10 @@ class Routes extends React.Component {
         <Switch>
           <Route exact path='/' render={() => <Loading component={Main} />} />
           <Route exact path='/signup' render={() => <Loading component={SignUp} isSignUpPath={true} />} />
+          <Route exact path='/admin' render={() => <Loading component={Admin} onlyAdmin={true} />} />
           <Route path='/login' render={() => <Loading component={Login} isLoginPath={true} />} />
         </Switch>
-        <Alert stack={{ limit: 10, spacing: 10 }} timeout={5000} position='bottom-left' effect='stackslide' />
+        <Alert stack={{ limit: 10, spacing: 10 }} timeout={3000} position='bottom-left' effect='stackslide' />
       </div>
     );
   }

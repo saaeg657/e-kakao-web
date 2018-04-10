@@ -20,15 +20,27 @@ const signOut = () => new Promise((resolve, reject) =>
 
 const checkAuth = () => new Promise((resolve, reject) => {
   firebase.auth().onAuthStateChanged((user) => {
-    if (user && user.emailVerified) return resolve(user);
+    if (firebase.auth().currentUser) {
+      return db.ref(`/users/${firebase.auth().currentUser.uid}/admin`).once('value')
+        .then((snapshot) => {
+          if (user && user.emailVerified) return resolve({ ...user.toJSON(), admin: snapshot.val() });
+          return reject();
+        })
+        .catch(reject)
+    }
     return reject();
   });
 });
 
 const getAuth = () => new Promise((resolve) => {
-  const { currentUser } = firebase.auth();
-  if (currentUser) return resolve(currentUser.toJSON());
-  return resolve();
+  if (firebase.auth().currentUser) {
+    return db.ref(`/users/${firebase.auth().currentUser.uid}/admin`).once('value')
+      .then((snapshot) => {
+        const { currentUser } = firebase.auth();
+        if (currentUser) return resolve({ ...currentUser.toJSON(), admin: snapshot.val() });
+        return resolve();
+      })
+  }
 });
 
 const sendEmailVerification = ({ email, password }) => new Promise((resolve, reject) => {
