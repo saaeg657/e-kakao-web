@@ -36,7 +36,7 @@ class AdminComponent extends React.Component {
     this.onChangeTextField = this.onChangeTextField.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.initInvitationCode();
     this.initUsers();
   }
@@ -110,7 +110,7 @@ class AdminComponent extends React.Component {
   onChangeTextField(e) {
     if (!(Number(e.target.value) >= 0)) return;
     this.setState({
-      [e.target.name]: e.target.value
+      [e.target.name]: Number(e.target.value)
     });
   }
 
