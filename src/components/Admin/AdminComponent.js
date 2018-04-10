@@ -44,23 +44,22 @@ class AdminComponent extends React.Component {
   initUsers() {
     db.ref(`/users`).on('value', (snapshot) => {
       this.setState({
-        userList: snapshot.val()
+        userList: snapshot.val() ? snapshot.val() : {}
       });
     });
   }
 
   initInvitationCode() {
     db.ref(`/invitationCode`).on('value', (snapshot) => {
-      console.log(snapshot.val());
       this.setState({
-        invitationCodeList: snapshot.val()
+        invitationCodeList: snapshot.val() ? snapshot.val() : {}
       });
     });
   }
 
   onGenerateInvitationCode(num) {
     const code = Array(12).fill(null).map(() => String.fromCharCode(Math.floor(Math.random() * 25 + 65))).join('');
-    db.ref(`/invitationCode`).push(code)
+    db.ref(`/invitationCode/${code}`).set(true)
       .then(() => {
         Alert.success('success');
       })
@@ -78,7 +77,8 @@ class AdminComponent extends React.Component {
   onDeleteUser(key) {
     /* eslint-disable */
     if (confirm('추방하시겠습니까?')) {
-      db.ref(`/users/${key}`).remove()
+      firebase.auth().
+        db.ref(`/users/${key}`).remove()
         .then(() => {
           Alert.success('success');
         })
@@ -103,9 +103,11 @@ class AdminComponent extends React.Component {
   }
 
   onChangeTextField(e) {
-    this.setState({
-      [e.target.name] : e.target.value
-    });
+    if (!(Number(e.traget.value) >= 0)) {
+      this.setState({
+        [e.target.name]: e.target.value
+      });
+    }
   }
 
   render() {
@@ -116,11 +118,11 @@ class AdminComponent extends React.Component {
           <div style={styles.container}>
             <h2 style={{ textAlign: 'center' }}>초대코드생성</h2>
             <FlatButton label='코드생성' onClick={() => this.onGenerateInvitationCode(12)} fullWidth />
-            {Object.keys(this.state.invitationCodeList).length > 0 && Object.keys(this.state.invitationCodeList).map((key, i) => {
+            {Object.keys(this.state.invitationCodeList).length > 0 && Object.keys(this.state.invitationCodeList).map((code, i) => {
               return (
                 <div key={i} style={{ margin: '5px 0px 5px 0px' }}>
-                  <span>{this.state.invitationCodeList[key]}</span>
-                  <FlatButton label='삭제' onClick={() => this.onDeleteInvitationCode(key)} />
+                  <span>{code}</span>
+                  <FlatButton label='삭제' onClick={() => this.onDeleteInvitationCode(code)} />
                 </div>
               );
             })}

@@ -5,11 +5,15 @@ import { db } from '../firebase/firebase';
 const signIn = ({ email, password }) => new Promise((resolve, reject) =>
   firebase.auth().signInWithEmailAndPassword(email, password)
     .then((user) => {
-      if (!user.emailVerified) {
-        firebase.auth().signOut();
-        return reject(new Error('이메일 인증을 해주세요.'));
-      }
-      return resolve('Successfully Signed in.')
+      return db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value')
+        .then((snapshot) => {
+          if (!snapshot.val()) return reject(new Error('추방당한 유저입니다.'));
+          if (!user.emailVerified) {
+            firebase.auth().signOut();
+            return reject(new Error('이메일 인증을 해주세요.'));
+          }
+          return resolve('Successfully Signed in.')
+        })
     })
     .catch(err => reject(err)));
 
@@ -21,9 +25,10 @@ const signOut = () => new Promise((resolve, reject) =>
 const checkAuth = () => new Promise((resolve, reject) => {
   firebase.auth().onAuthStateChanged((user) => {
     if (firebase.auth().currentUser) {
-      return db.ref(`/users/${firebase.auth().currentUser.uid}/admin`).once('value')
+      return db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value')
         .then((snapshot) => {
-          if (user && user.emailVerified) return resolve({ ...user.toJSON(), admin: snapshot.val() });
+          if (!snapshot.val()) return reject();
+          if (user && user.emailVerified) return resolve({ ...user.toJSON(), admin: snapshot.val().admin });
           return reject();
         })
         .catch(reject)
@@ -32,12 +37,13 @@ const checkAuth = () => new Promise((resolve, reject) => {
   });
 });
 
-const getAuth = () => new Promise((resolve) => {
+const getAuth = () => new Promise((resolve, reject) => {
   if (firebase.auth().currentUser) {
-    return db.ref(`/users/${firebase.auth().currentUser.uid}/admin`).once('value')
+    return db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value')
       .then((snapshot) => {
         const { currentUser } = firebase.auth();
-        if (currentUser) return resolve({ ...currentUser.toJSON(), admin: snapshot.val() });
+        if (!snapshot.val()) return reject();
+        if (currentUser) return resolve({ ...currentUser.toJSON(), admin: snapshot.val().admin });
         return resolve();
       })
   }

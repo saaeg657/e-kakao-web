@@ -129,13 +129,13 @@ class Main extends React.Component {
   initUser() {
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if (snapshot.val()) {
-        const { roomid, sessionid, cookie, emoticonCount, admin } = snapshot.val();
+        const { roomid, sessionid, cookie, emoticonCount, master } = snapshot.val();
         this.setState({
           roomid,
           sessionid,
           cookie,
           emoticonCount,
-          admin
+          master
         });
       }
     });
@@ -277,7 +277,7 @@ class Main extends React.Component {
     if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}&item_sub_type=${item_sub_type}`;
     else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
-      if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().admin && isEmoticon) {
+      if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().master && isEmoticon) {
         return Alert.error('사용가능한 이모티콘 횟수가 0입니다.')
       }
       fetch(`${endpoint}/msg?${params}`, {
@@ -312,7 +312,7 @@ class Main extends React.Component {
             <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
           </div>
           <div style={styles.controller}>
-            {this.state.admin ? <div>어드민</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}
+            {this.state.master ? <div>마스터계정</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}
             <div style={styles.playerId}>
               <TextField
                 floatingLabelText='roomid'
