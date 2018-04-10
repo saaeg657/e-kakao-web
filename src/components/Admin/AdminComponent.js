@@ -41,6 +41,11 @@ class AdminComponent extends React.Component {
     this.initUsers();
   }
 
+  componentWillUnmount() {
+    db.ref(`/users`).off();
+    db.ref(`/invitationCode`).off();
+  }
+
   initUsers() {
     db.ref(`/users`).on('value', (snapshot) => {
       this.setState({
