@@ -103,11 +103,10 @@ class AdminComponent extends React.Component {
   }
 
   onChangeTextField(e) {
-    if (!(Number(e.traget.value) >= 0)) {
-      this.setState({
-        [e.target.name]: e.target.value
-      });
-    }
+    if (!(Number(e.target.value) >= 0)) return;
+    this.setState({
+      [e.target.name]: e.target.value
+    });
   }
 
   render() {
@@ -131,7 +130,7 @@ class AdminComponent extends React.Component {
             <h2 style={{ textAlign: 'center' }}>유저관리</h2>
             <TextField
               style={{ float: 'left', width: 150 }}
-              name='emoticonCountInput'
+              name='emoticonCountChangeAmout'
               hintText='증감단위'
               value={this.state.emoticonCountChangeAmout}
               onChange={this.onChangeTextField}
