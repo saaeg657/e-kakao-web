@@ -52,7 +52,7 @@ class NavBarComponent extends React.Component {
     this.handleChangeAuthMenu = this.handleChangeAuthMenu.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     getAuth()
       .then((user) => {
         if (user) this.setState({ user });
@@ -88,6 +88,8 @@ class NavBarComponent extends React.Component {
           </div>
           <div style={{ float: 'right' }}>
             {this.state.user.admin && <div style={styles.navBarItem}><NavLink to='/admin' style={styles.navLink}><span>관리</span></NavLink></div>}
+            <div style={styles.navBarItem}><NavLink to='/howto' style={styles.navLink}><span>사용방법</span></NavLink></div>
+            <div style={styles.navBarItem}><NavLink to='/' style={styles.navLink}><span>시청</span></NavLink></div>
             {/* <div style={styles.navBarItem}><NavLink to='/' style={styles.navLink}><span>시청</span></NavLink></div> */}
             {/* <div style={styles.navBarItem}><NavLink to='/user' style={styles.navLink}><span>유저</span></NavLink></div>
             <div style={styles.navBarItem}><NavLink to='/queue' style={styles.navLink}><span>큐</span></NavLink></div>
