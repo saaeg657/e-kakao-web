@@ -4,7 +4,7 @@ import Alert from 'react-s-alert';
 import firebase from 'firebase';
 import { db } from '../../utils/firebase/firebase';
 
-const endpoint = 'http://localhost:3000';
+const endpoint = 'https://e-kakao-api.herokuapp.com';
 
 const styles = {
   root: {
