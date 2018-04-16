@@ -1,10 +1,10 @@
 import React from 'react';
-import { TextField, FlatButton, SelectField, MenuItem } from 'material-ui';
+import { TextField, FlatButton } from 'material-ui';
 import Alert from 'react-s-alert';
 import firebase from 'firebase';
 import { db } from '../../utils/firebase/firebase';
 
-const endpoint = 'https://e-kakao-api.herokuapp.com';
+const endpoint = 'http://localhost:3000';
 
 const styles = {
   root: {
@@ -32,20 +32,20 @@ const styles = {
 
   },
   playerId: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'row'
-  },
-  message: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'row',
+    height: 60
+  },
+  message: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: 60
   },
   emoticonController: {
 
   },
   selectedEmoticonSet: {
-    height: 300,
+    height: 400,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -79,7 +79,6 @@ class Main extends React.Component {
       favorites: {},
       selectedEmoticonSet: {},
       itemid: 0,
-      item_sub_type: 3,
       resourceid: 0,
       page: 0,
       limit: 500,
@@ -240,42 +239,20 @@ class Main extends React.Component {
       Alert.error('Set resource first!');
       return;
     }
-    const data = `sessionid=${this.state.sessionid}&roomid=${this.state.roomid}&msg=%7B%22msg%22%3A%22${this.state.message}%22%2C%22emoticon%22%3A%7B%22item_id%22%3A%22${this.state.itemid}%22%2C%22resource_id%22%3A%22${this.state.resourceid}%22%2C%22item_sub_type%22%3A4%2C%22item_version%22%3A1%7D%7D&type=EMOTICON`;
-    // fetch('https://play.kakao.com/chat/service/api/msg', {
-    //   method: 'POST',
-    //   credentials: 'include',
-    //   headers: {
-    //     'Accept': '*/*',
-    //     'Accept-Encoding': 'gzip, deflate, br',
-    //     'Accept-Language': 'ko-KR, ko; q=0.9, en-US; q=0.8, en; q=0.7',
-    //     'Connection': 'keep-alive',
-    //     'Content-Length': Buffer.byteLength(data, 'utf8'),
-    //     'Content-type': 'application/x-www-form-urlencoded',
-    //     'Cookie': this.state.cookie,
-    //     'Host': 'play.kakao.com',
-    //     'Origin': 'https://play.kakao.com',
-    //     'Referer': `https://play.kakao.com/kakaotv/live/chat/user/${this.state.channelid}`,
-    //     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
-    //   },
-    //   body: data
-    // })
-    //   .then((res) => Alert.success(res.json()))
-    //   .catch(console.log);
-    //{"status":200,"code":"OK","msg":"OK","enter":"fd84a9b1-4e0a-4f39-a547-415624a693c1","roomInfo":{"serverip":"203.133.177.139","port":"9002","channelid":"tvpot.301","version":57398,"roomid":"1732884","freeze":"0","mode":"1","reportcount":"0","expand":"0"},"additionalInfo":{"prohibit_version":"1519002433711"}}
-    //TIARA=t6KKoBd3WK-O3V4BtIjIJXuAtD8g-L_OTvpS8Jr3mXdg3egHnJg4GMOgEZeDtqNsNCyHwAzLQaSjoifk3wp8LA00; webid=73de22799b7d4f26b0ff12c44a3fd95f; _kadu=5ihgD3HLQP8wpyj0_1522013107882; LWCS=iK2_HD7hbdN8SvcyXR8sQQ.Hb1BHAlDL74JkSKIsCyIJONW3o2sbos9sss8rAqfi9xUKpz9zAz4t-GuhAA6o7TE.1523250752617.300000.qaKbYCwMDlzb4WVWZ1Sji3ElkX1LfMj-0N1Ow_kttCQ; _kawlt=vlFlI2o3Wj6oeL6aTLNwKO1qVOOs8q1UbYfuKRTXCUYqD_Dti_cAPD6wOxMJnfA2h-FR4VkI70b--qkdSoFLyS0ugRV9DGWFSXDR0bEE23D9xFEgwk47tb1Kcmf5-P7I; _karmt=oD9tGgUtgOs-QLvOJsd7q5xj_Zjvts_-LGGmLcr-qxZoMlUMjC0xU38SmGkWBW7e; _kawltea=1523316081; _karmtea=1523326881; _klv=2973842:ee2757534063c7f7
-    //2433010
-    //1760871
+
     const sessionid = this.state.sessionid;
     const cookie = encodeURI(this.state.cookie);
     const roomid = this.state.roomid;
     const message = encodeURI(this.state.message);
     const itemid = isEmoticon ? this.state.itemid : '';
     const resourceid = isEmoticon ? this.state.resourceid : '';
-    const item_sub_type = this.state.item_sub_type;
 
     let params = '';
-    if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}&item_sub_type=${item_sub_type}`;
+    if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}`;
     else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
+
+    params += `&imageUrl=${this.state.selectedEmoticon.titleImg}`
+
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().master && isEmoticon) {
         return Alert.error('사용가능한 이모티콘 횟수가 0입니다.')
@@ -285,7 +262,6 @@ class Main extends React.Component {
         mode: 'cors',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Content-Length': Buffer.byteLength(data, 'utf8'),
           'Content-type': 'application/x-www-form-urlencoded',
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
         },
@@ -312,7 +288,7 @@ class Main extends React.Component {
             <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
           </div>
           <div style={styles.controller}>
-            {this.state.master ? <div>마스터계정</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}
+            <div style={{ height: 30 }}>{this.state.master ? <div>마스터계정</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}</div>
             <div style={styles.playerId}>
               <TextField
                 floatingLabelText='roomid'
@@ -339,16 +315,6 @@ class Main extends React.Component {
               <FlatButton label='불러오기' style={{ marginTop: 30 }} onClick={this.onLoadProfile} />
             </div>
             <div style={styles.message}>
-              <SelectField
-                floatingLabelText='item_sub_type'
-                name='item_sub_type'
-                value={this.state.item_sub_type}
-                onChange={(e, i, v) => this.onChangeSelectField('item_sub_type', v)}
-                style={{ width: 100 }}
-              >
-                <MenuItem primaryText='일반' value={3} />
-                <MenuItem primaryText='움짤' value={4} />
-              </SelectField>
               <TextField
                 floatingLabelText='메시지'
                 name='message'

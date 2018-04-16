@@ -30,7 +30,7 @@ const styles = {
     float: 'left',
     fontSize: 30,
     paddingLeft: 20,
-    paddingTop: 15,
+    paddingTop: 8,
     color: '#666'
   },
   navBarItem: {
