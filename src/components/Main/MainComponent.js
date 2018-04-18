@@ -45,20 +45,22 @@ const styles = {
 
   },
   selectedEmoticonSet: {
+    height: 550,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflowY: 'scroll'
   },
   emoticonList: {
-    height: 300,
+    height: 400,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
     flexWrap: 'wrap'
   },
   favorites: {
-    height: 300,
+    width: 600,
+    height: 400,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
@@ -284,7 +286,7 @@ class Main extends React.Component {
       <div style={styles.root}>
         <div style={styles.container}>
           <div style={styles.player}>
-            <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500 }} />
+            <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500, height: 700 }} />
           </div>
           <div style={styles.controller}>
             <div style={{ height: 30 }}>{this.state.master ? <div>마스터계정</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}</div>
@@ -362,7 +364,7 @@ class Main extends React.Component {
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <div style={{ flex: 3 }}>
+          <div style={{ flex: 3, padding: 20 }}>
             <div style={{ margin: 10 }}>이모티콘 리스트({this.state.numEmoticons})({this.state.page + 1}/{Math.floor(this.state.numEmoticons / this.state.limit) + 1})</div>
             <div style={styles.emoticonList}>
               {this.state.emoticons && Object.keys(this.state.emoticons).map((key, i) => {
@@ -403,7 +405,7 @@ class Main extends React.Component {
               />
             </div>
           </div>
-          <div style={{ width: 600 }}>
+          <div style={{ width: 600, padding: 20 }}>
             <div style={{ margin: 10 }}>즐겨찾기</div>
             <div style={styles.favorites}>
               {this.state.favorites && Object.keys(this.state.favorites).map((key, i) => {
