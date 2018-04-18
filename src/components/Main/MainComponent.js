@@ -45,11 +45,12 @@ const styles = {
 
   },
   selectedEmoticonSet: {
-    height: 550,
+    height: 400,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    overflowY: 'scroll'
+    overflowY: 'scroll',
+    overflowX: 'hidden',
   },
   emoticonList: {
     height: 400,
@@ -64,6 +65,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
+    overflowX: 'hidden',
     flexWrap: 'wrap'
   }
 };
@@ -335,7 +337,7 @@ class Main extends React.Component {
                 onClick={() => this.sendMessage(false)}
               />
             </div>
-            <div style={{ margin: 10 }}>
+            <div style={{ height: 50, paddingTop: 30 }}>
               <div style={{ float: 'left' }}>이모티콘 선택({this.state.itemid}, {this.state.resourceid})</div>
               {this.state.favorites && this.state.favorites[this.state.itemid] ?
                 (<div style={{ float: 'right', cursor: 'pointer' }} onClick={this.onDeleteFavorite}>즐겨찾기해제</div>) :
