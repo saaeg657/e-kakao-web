@@ -108,7 +108,7 @@ class Main extends React.Component {
 
   componentWillMount() {
     this.initUser();
-    this.initEmoticons();
+    // this.initEmoticons();
     this.initFavorites();
   }
 
