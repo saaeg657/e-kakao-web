@@ -45,7 +45,6 @@ const styles = {
 
   },
   selectedEmoticonSet: {
-    height: 400,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -251,7 +250,7 @@ class Main extends React.Component {
     if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}`;
     else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
 
-    params += `&imageUrl=${this.state.selectedEmoticon.titleImg}`
+    params += `&imageUrl=${this.state.selectedEmoticon.titleImg ? this.state.selectedEmoticon.titleImg : ''}`
 
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().master && isEmoticon) {

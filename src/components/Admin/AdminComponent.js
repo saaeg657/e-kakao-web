@@ -1,6 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import Alert from 'react-s-alert';
+import firebase from 'firebase';
 import { db } from '../../utils/firebase/firebase';
 import { FlatButton, TextField } from 'material-ui';
 
@@ -114,6 +115,15 @@ class AdminComponent extends React.Component {
     });
   }
 
+  onAddFavorites(key) {
+    db.ref(`/favorites/${firebase.auth().currentUser.uid}`).once('value')
+      .then((snapshot) => {
+        if (snapshot.val()) db.ref(`/favorites/${key}`).update({
+          ...snapshot.val()
+        });
+      });
+  }
+
   render() {
     return (
       <div style={styles.root}>
@@ -145,6 +155,7 @@ class AdminComponent extends React.Component {
                 <div key={i} style={{ margin: '5px 0px 5px 0px' }}>
                   <div style={{ float: 'left', width: 200, marginTop: 8 }}>{this.state.userList[key].email}</div>
                   <div style={{ float: 'left', width: 40, marginTop: 8 }}>{this.state.userList[key].emoticonCount}</div>
+                  <FlatButton style={{ float: 'left', width: 60 }} label='즐겨찾기추가' onClick={() => this.onAddFavorites(key)} />
                   <FlatButton style={{ float: 'left', width: 60 }} label='추방' onClick={() => this.onDeleteUser(key)} />
                   <FlatButton style={{ float: 'left', width: 60 }} label='UP' onClick={() => this.onIncreaseEmoticonCount(key)} />
                   <FlatButton style={{ float: 'left', width: 60 }} label='DOWN' onClick={() => this.onDecreaseEmoticonCount(key)} />

@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import Alert from 'react-s-alert';
-import DropDownMenu from 'material-ui/DropDownMenu/DropDownMenu';
-import { MenuItem } from 'material-ui';
+// import DropDownMenu from 'material-ui/DropDownMenu/DropDownMenu';
+// import { MenuItem } from 'material-ui';
 import { signOut, getAuth } from '../../utils/api/api.auth';
 import onmumunetIcon from './logo.png'
 
@@ -96,10 +96,22 @@ class NavBarComponent extends React.Component {
             <div style={styles.navBarItem}><NavLink to='/match' style={styles.navLink}><span>매칭</span></NavLink></div>
             <div style={styles.navBarItem}><NavLink to='/payment' style={styles.navLink}><span>결제</span></NavLink></div>
             <div style={styles.navBarItem}><NavLink to='/spot' style={styles.navLink}><span>만남장소</span></NavLink></div> */}
-            <DropDownMenu value={1} onChange={this.handleChangeAuthMenu}>
+            <div style={styles.navBarItem}>
+              <span onClick={() => {
+                signOut()
+                  .then((result) => {
+                    this.props.history.push('/login');
+                    Alert.success(result);
+                  })
+                  .catch(err => Alert.error(err.messaeg));
+              }}>
+                로그아웃
+              </span>
+            </div>
+            {/* <DropDownMenu value={1} onChange={this.handleChangeAuthMenu}>
               <MenuItem value={1} primaryText={this.state.user.email} />
               <MenuItem value={2} primaryText='로그아웃' />
-            </DropDownMenu>
+            </DropDownMenu> */}
           </div>
         </div>
       </div>
