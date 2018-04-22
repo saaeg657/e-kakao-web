@@ -48,6 +48,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
+    alignContent: 'flex-start',
     overflowY: 'scroll',
     overflowX: 'hidden',
   },
@@ -88,7 +89,7 @@ class Main extends React.Component {
       cookie: '',
       sessionid: '',
       emoticonCount: 0,
-      iframeHeight: window.innerHeight - 497
+      iframeHeight: window.innerHeight - 520
     }
     this.onChangeTextField = this.onChangeTextField.bind(this);
     this.onAddFavorite = this.onAddFavorite.bind(this);
@@ -123,7 +124,7 @@ class Main extends React.Component {
 
   updateDimensions() {
     this.setState({
-      iframeHeight: window.innerHeight - 497
+      iframeHeight: window.innerHeight - 520
     });
   }
 
