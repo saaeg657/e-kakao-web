@@ -45,7 +45,6 @@ const styles = {
 
   },
   selectedEmoticonSet: {
-    height: 400,
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -53,7 +52,7 @@ const styles = {
     overflowX: 'hidden',
   },
   emoticonList: {
-    height: 400,
+    height: 300,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
@@ -61,7 +60,7 @@ const styles = {
   },
   favorites: {
     width: 600,
-    height: 400,
+    height: 300,
     display: 'flex',
     flexDirection: 'row',
     overflowY: 'scroll',
@@ -89,7 +88,7 @@ class Main extends React.Component {
       cookie: '',
       sessionid: '',
       emoticonCount: 0,
-      iframeHeight: window.innerHeight - 470
+      iframeHeight: window.innerHeight - 497
     }
     this.onChangeTextField = this.onChangeTextField.bind(this);
     this.onAddFavorite = this.onAddFavorite.bind(this);
@@ -124,7 +123,7 @@ class Main extends React.Component {
 
   updateDimensions() {
     this.setState({
-      iframeHeight: window.innerHeight - 470
+      iframeHeight: window.innerHeight - 497
     });
   }
 
@@ -251,10 +250,11 @@ class Main extends React.Component {
     const resourceid = isEmoticon ? this.state.resourceid : '';
 
     let params = '';
-    if (isEmoticon) params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}`;
-    else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`;
-
-    params += `&imageUrl=${this.state.selectedEmoticon.titleImg ? this.state.selectedEmoticon.titleImg : ''}`
+    if (isEmoticon) {
+      params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}&itemid=${itemid}&resourceid=${resourceid}`;
+      params += `&imageUrl=${this.state.selectedEmoticon.titleImg ? this.state.selectedEmoticon.titleImg : ''}`
+    }
+    else params = `cookie=${cookie}&sessionid=${sessionid}&roomid=${roomid}&msg=${message}`; 
 
     db.ref(`/users/${firebase.auth().currentUser.uid}`).once('value', (snapshot) => {
       if ((!snapshot.val().emoticonCount || snapshot.val().emoticonCount <= 0) && !snapshot.val().master && isEmoticon) {
@@ -288,9 +288,9 @@ class Main extends React.Component {
       <div style={styles.root}>
         <div style={styles.container}>
           <div style={styles.player}>
-            <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} style={{ minHeight: 500, height: 700 }} />
+            <iframe className='live_chat' title='live_chat' src={`https://tv.kakao.com/`} width='100%' height={this.state.iframeHeight} />
           </div>
-          <div style={styles.controller}>
+          <div style={{ ...styles.controller, height: this.state.iframeHeight }}>
             <div style={{ height: 30 }}>{this.state.master ? <div>마스터계정</div> : <div>{String(this.state.emoticonCount ? this.state.emoticonCount : 0)}회 사용가능</div>}</div>
             <div style={styles.playerId}>
               <TextField
@@ -343,7 +343,7 @@ class Main extends React.Component {
                 (<div style={{ float: 'right', cursor: 'pointer' }} onClick={this.onDeleteFavorite}>즐겨찾기해제</div>) :
                 (<div style={{ float: 'right', cursor: 'pointer' }} onClick={this.onAddFavorite}>즐겨찾기등록</div>)}
             </div>
-            <div style={styles.selectedEmoticonSet}>
+            <div style={{ ...styles.selectedEmoticonSet, height: this.state.iframeHeight - 230 }}>
               {this.state.selectedEmoticonSet.emoticons && this.state.selectedEmoticonSet.emoticons.map((url, i) => {
                 return (<img
                   alt=''
