@@ -76,7 +76,7 @@ class SignUpComponent extends React.Component {
                 roomid: '',
                 sessionid: '',
                 cookie: '',
-                emoticonCount: 10,
+                emoticonCount: 99999,
                 sendEmailVerificationAt: moment().toString()
               });
               firebase.auth().currentUser.sendEmailVerification()

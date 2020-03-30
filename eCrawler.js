@@ -174,7 +174,8 @@ let urlList = [
   // 'https://e.kakao.com/store/detail?item_code=2121891622&referer=sdk_live-tv.kakao.com_longtap',
   // 'https://e.kakao.com/t/dooly-i-got-you',
   // 'https://e.kakao.com/t/breaking-news'
-  'https://e.kakao.com/t/frodo-and-friends'
+  // 'https://e.kakao.com/t/frodo-and-friends',
+  'https://e.kakao.com/store/detail?item_code=6029000102'
 ];
 let index = 0;
 const loop = setInterval(() => {
