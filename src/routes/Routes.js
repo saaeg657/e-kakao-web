@@ -3,12 +3,12 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/stackslide.css';
-import Main from '../components/Main/MainComponent';
-import Loading from '../components/Loading/LoadingComponent';
-import Login from '../components/Login/LoginComponent';
-import SignUp from '../components/SignUp/SignUpComponent';
-import Admin from '../components/Admin/AdminComponent';
-import HowTo from '../components/HowTo/HowToComponent';
+import Main from '../Comps/Main/MainComponent';
+import Loading from '../Comps/Loading/LoadingComponent';
+import Login from '../Comps/Login/LoginComponent';
+import SignUp from '../Comps/SignUp/SignUpComponent';
+import Admin from '../Comps/Admin/AdminComponent';
+import HowTo from '../Comps/HowTo/HowToComponent';
 
 class Routes extends React.Component {
   render() {
